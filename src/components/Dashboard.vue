@@ -12,9 +12,9 @@
 
 <template>
   <h1>Tunnels</h1>
-  <b-button @click="openModal">Add Tunnel</b-button>
+  <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
 
-  <b-modal v-model="modalOpen" title="Add Tunnel">
+  <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
     <form @submit.prevent="addTunnel">
       <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
         <b-form-input id="name-input" v-model="newTunnel.name" required></b-form-input>
@@ -79,8 +79,8 @@ export default {
     this.tunnels = response.data
   },
   methods: {
-    openModal() {
-      this.modalOpen = true
+    addtunnelopenModal() {
+      this.addtunnelmodalOpen = true
     },
     addTunnel() {
       // Send data to server
