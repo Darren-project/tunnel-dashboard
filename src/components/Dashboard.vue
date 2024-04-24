@@ -11,6 +11,7 @@
  */
 
 <template>
+  <h1>Tunnels</h1>
     <b-table :items="tunnels" :fields="fields"></b-table>
 
 </template>

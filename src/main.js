@@ -33,7 +33,7 @@ import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
 const app = createApp(App)
   .use(router)
-  .use(createBootstrap({components: true, directives: true})
+  .use(createBootstrap({components: true, directives: true}))
   .use(OktaVue, {
     oktaAuth,
     onAuthRequired: () => {
