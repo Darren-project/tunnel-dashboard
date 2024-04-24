@@ -65,11 +65,11 @@ export default {
       ],
       addtunnelmodalOpen: ref(false),
       showOverlayaddtunnel: ref(false),
-      newTunnel: {
+      newTunnel: ref({
         name: '',
         host: '',
         target: ''
-      },
+      }),
       hostValidationState: null,
     }
   },
@@ -94,9 +94,9 @@ export default {
           Authorization: this.$auth.getAccessToken()
         },
         body: {
-          name: this.newTunnel.name,
-          host: this.newTunnel.host,
-          target: this.newTunnel.target
+          name: this.newTunnel.value.name,
+          host: this.newTunnel.value.host,
+          target: this.newTunnel.value.target
         }
       })
       .then(response => {
@@ -105,9 +105,9 @@ export default {
         // Close modal
         this.modalOpen.value = false;
         // Clear form fields
-        this.newTunnel.name = '';
-        this.newTunnel.host = '';
-        this.newTunnel.target = '';
+        this.newTunnel.value.name = '';
+        this.newTunnel.value.host = '';
+        this.newTunnel.value.target = '';
         const accessToken = this.$auth.getAccessToken()
         const response_list = axios.get("https://socksproxyapi.darrenmc.xyz/api/tunnels/list", {
           headers: {
