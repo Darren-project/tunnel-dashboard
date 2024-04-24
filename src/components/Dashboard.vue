@@ -12,7 +12,29 @@
 
 <template>
   <h1>Tunnels</h1>
-    <b-table :items="tunnels" :fields="fields"></b-table>
+  <b-button @click="openModal">Add Tunnel</b-button>
+
+  <b-modal v-model="modalOpen" title="Add Tunnel">
+    <form @submit.prevent="addTunnel">
+      <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
+        <b-form-input id="name-input" v-model="newTunnel.name" required></b-form-input>
+        <b-form-invalid-feedback v-if="!newTunnel.name">Name is required.</b-form-invalid-feedback>
+      </b-form-group>
+
+      <b-form-group label="Host" label-for="host-input" :state="hostValidationState">
+        <b-form-input id="host-input" v-model="newTunnel.host" required></b-form-input>
+        <b-form-invalid-feedback v-if="!newTunnel.host">Host is required.</b-form-invalid-feedback>
+      </b-form-group>
+
+      <b-form-group label="Target" label-for="target-input" :state="targetValidationState">
+        <b-form-input id="target-input" v-model="newTunnel.target" required></b-form-input>
+        <b-form-invalid-feedback v-if="!newTunnel.target">Target is required.</b-form-invalid-feedback>
+      </b-form-group>
+
+      <b-button @click="addTunnel" type="submit" variant="primary">OK</b-button>
+    </form>
+  </b-modal>
+  <b-table :items="tunnels" :fields="fields"></b-table>
 
 </template>
 
@@ -23,8 +45,8 @@ export default {
   name: 'Dashboard',
   data () {
     return {
-      "tunnels": [],
-      "fields": [
+      tunnels: [],
+      fields: [
         {
           key: 'name',
           label: 'Name'
@@ -37,17 +59,63 @@ export default {
           key: 'target',
           label: 'Target'
         }
-      ]
+      ],
+      modalOpen: false,
+      newTunnel: {
+        name: '',
+        host: '',
+        target: ''
+      },
+      hostValidationState: null,
     }
   },
   async created () {
-      const accessToken = this.$auth.getAccessToken()
-      const response = await axios.get("https://socksproxyapi.darrenmc.xyz/api/tunnels/list", {
+    const accessToken = this.$auth.getAccessToken()
+    const response = await axios.get("https://socksproxyapi.darrenmc.xyz/api/tunnels/list", {
+      headers: {
+        Authorization: `${accessToken}`
+      }
+    })
+    this.tunnels = response.data
+  },
+  methods: {
+    openModal() {
+      this.modalOpen = true
+    },
+    addTunnel() {
+      // Send data to server
+      axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/create/" + this.newTunnel.name, this.newTunnel, {
         headers: {
-          Authorization: `${accessToken}`
+          Authorization: this.$auth.getAccessToken()
+        },
+        body: {
+          name: this.newTunnel.name,
+          host: this.newTunnel.host,
+          target: this.newTunnel.target
         }
-  })
-  this.tunnels = response.data
+      })
+      .then(response => {
+        // Handle success
+        console.log("Tunnel added successfully");
+        // Close modal
+        this.modalOpen = false;
+        // Clear form fields
+        this.newTunnel.name = '';
+        this.newTunnel.host = '';
+        this.newTunnel.target = '';
+        const accessToken = this.$auth.getAccessToken()
+        const response_list = axios.get("https://socksproxyapi.darrenmc.xyz/api/tunnels/list", {
+          headers: {
+            Authorization: `${accessToken}`
+          }
+        })
+        this.tunnels = []
+        this.tunnels = response_list.data
+      })
+      .catch(error => {
+        
+      });
+    }
   }
 }
 </script>
