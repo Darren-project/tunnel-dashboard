@@ -40,12 +40,13 @@
 
 <script>
 import axios from 'axios'
+import { ref } from 'vue'
 
 export default {
   name: 'Dashboard',
   data () {
     return {
-      tunnels: [],
+      tunnels: ref([]),
       fields: [
         {
           key: 'name',
@@ -76,7 +77,7 @@ export default {
         Authorization: `${accessToken}`
       }
     })
-    this.tunnels = response.data
+    this.tunnels.value = response.data
   },
   methods: {
     addtunnelopenModal() {
@@ -109,8 +110,7 @@ export default {
             Authorization: `${accessToken}`
           }
         })
-        this.tunnels = []
-        this.tunnels = response_list.data
+        this.tunnels.value = response_list.data
       })
       .catch(error => {
         
