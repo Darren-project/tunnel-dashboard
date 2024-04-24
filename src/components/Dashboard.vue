@@ -13,7 +13,7 @@
 <template>
   <h1>Tunnels</h1>
   <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
-
+  <BOverlay :show="showOverlayaddtunnel" rounded="sm">
   <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
     <form @submit.prevent="addTunnel">
       <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
@@ -33,7 +33,9 @@
 
       <b-button @click="addTunnel" type="submit" variant="primary">OK</b-button>
     </form>
+    
   </b-modal>
+  </BOverlay>
   <b-table :items="tunnels" :fields="fields"></b-table>
 
 </template>
@@ -61,7 +63,8 @@ export default {
           label: 'Target'
         }
       ],
-      modalOpen: false,
+      addtunnelmodalOpen: ref(false),
+      showOverlayaddtunnel: ref(false),
       newTunnel: {
         name: '',
         host: '',
@@ -81,9 +84,10 @@ export default {
   },
   methods: {
     addtunnelopenModal() {
-      this.addtunnelmodalOpen = true
+      this.addtunnelmodalOpen.value = true
     },
     addTunnel() {
+      this.showOverlayaddtunnel.value = true
       // Send data to server
       axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/create/" + this.newTunnel.name, this.newTunnel, {
         headers: {
@@ -99,7 +103,7 @@ export default {
         // Handle success
         console.log("Tunnel added successfully");
         // Close modal
-        this.modalOpen = false;
+        this.modalOpen.value = false;
         // Clear form fields
         this.newTunnel.name = '';
         this.newTunnel.host = '';
@@ -111,6 +115,7 @@ export default {
           }
         })
         this.tunnels.value = response_list.data
+        this.showOverlayaddtunnel.value = false
       })
       .catch(error => {
         
