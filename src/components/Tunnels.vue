@@ -120,7 +120,7 @@
     },
     watch: {
     },
-    errorCaptured(error, vm, info) {
+    onErrorCaptured(error, vm, info) {
     console.log('errorCaptured', error, info)
     return false; // Prevents the error from propagating further
   },
