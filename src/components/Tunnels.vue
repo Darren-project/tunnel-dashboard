@@ -65,13 +65,11 @@
       }
     },
     created() { 
-      setTimeout(() => {
+      
         if (this.firstfetch) {
         this.firstfetch = false
         this.fetchTunnels()
-      }
-        
-      }, 2000);
+        }
 
     },
     methods: {
