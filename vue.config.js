@@ -43,5 +43,9 @@ module.exports = {
       })
   },
   runtimeCompiler: true,
+<<<<<<< HEAD
   publicPath: '/',
+=======
+  publicPath: '/'
+>>>>>>> e4131915f44f610dea0f1e0ca61d3df5ab39c132
 }
