@@ -43,4 +43,11 @@ const app = createApp(App)
       router.push('/login')
     },
   })
-  .mount('#app')
+  
+app.errorHandler = (err, vm, info) => {
+    console.error("Error:", err);
+    console.error("Vue component:", vm);
+    console.error("Additional info:", info);
+    return false;
+  }
+app.mount('#app')

@@ -40,4 +40,8 @@ const router = createRouter({
 
 router.beforeEach(navigationGuard)
 
+router.onError(error => {
+  console.error('Router error:', error);
+});
+
 export default router

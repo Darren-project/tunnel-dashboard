@@ -3,14 +3,11 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vue-cli-service serve",
     "start": "vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "test": "npm run lint && npm run test:custom-login --prefix ../",
-    "pretest": "npm run pretest --prefix ../",
-    "postinstall": "npm run patch-semantic-ui-css --prefix ../"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@okta/okta-auth-js": "^7.2.0",

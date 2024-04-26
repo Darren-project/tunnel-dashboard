@@ -71,6 +71,7 @@
     </div>
     <AuthRequiredModal ref="authRequiredModal" />
   </div>
+  
 </template>
 
 <script>
@@ -80,6 +81,9 @@ export default {
   name: 'app',
   components: {
     AuthRequiredModal,
+  },
+  mounted() {
+    document.title = 'Tunnel Manager'
   },
   methods: {
     onAuthRequired(oktaAuth) {
