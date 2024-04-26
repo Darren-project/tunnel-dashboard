@@ -67,7 +67,9 @@
       class="ui text container"
       style="margin-top: 7em;"
     >
+      <KeepAlive>
       <router-view/>
+      </KeepAlive>
     </div>
     <AuthRequiredModal ref="authRequiredModal" />
   </div>
