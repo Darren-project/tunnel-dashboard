@@ -3,7 +3,7 @@
   <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
   <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
     <BOverlay :show="showOverlayaddtunnel" rounded="sm">
-      <form @submit.prevent="addTunnel">
+      <form>
         <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
           <b-form-input id="name-input" v-model="newTunnel.name" required></b-form-input>
           <b-form-invalid-feedback v-if="!newTunnel.name">Name is required.</b-form-invalid-feedback>
@@ -78,10 +78,11 @@ export default {
           }
         })
         this.tunnels = response.data
+
       } catch (error) {
         console.error("Error fetching tunnels:", error)
+        this.showOverlaytable = false
       }
-      this.showOverlaytable = false
     },
     addtunnelopenModal() {
       this.addtunnelmodalOpen = true
