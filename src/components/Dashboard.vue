@@ -1,7 +1,6 @@
 <script>
 import axios from 'axios'
 let firstfetch = true
-import { nextTick } from 'vue'
 
 export default {
   name: 'Dashboard',
@@ -20,6 +19,10 @@ export default {
         {
           key: 'target',
           label: 'Target'
+        },
+        {
+          key: 'actions',
+          label: 'Actions'
         }
       ],
       addtunnelmodalOpen: false,
@@ -32,7 +35,10 @@ export default {
       hostValidationState: null,
       nameValidationState: null,
       targetValidationState: null,
-      showOverlaytable: false
+      showOverlaytable: false,
+      deleteModalOpen: false,
+      deleteName: '',
+      showOverlaydeletetunnel: false,
     }
   },
   methods: {
@@ -48,6 +54,7 @@ export default {
         this.tunnels = response.data
         this.showOverlaytable = false
 
+
       } catch (error) {
         console.error("Error fetching tunnels:", error)
         this.showOverlaytable = false
@@ -55,6 +62,28 @@ export default {
     },
     addtunnelopenModal() {
       this.addtunnelmodalOpen = true
+    },
+    deleteTunnelModal(name) {
+      this.deleteName = name
+      this.deleteModalOpen = true
+    },
+    async deleteTunnel() {
+      try {
+        this.showOverlaydeletetunnel = true
+        const accessToken = this.$auth.getAccessToken()
+        await axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/delete/" + this.deleteName, null, {
+          headers: {
+            Authorization: accessToken
+          }
+        })
+        console.log("Tunnel deleted successfully")
+        this.deleteModalOpen = false
+        this.showOverlaydeletetunnel = false
+        this.fetchTunnels()
+      } catch (error) {
+        console.error("Error deleting tunnel:", error)
+        this.showOverlaydeletetunnel = false
+      }
     },
     async addTunnel() {
       this.showOverlayaddtunnel = true
@@ -83,28 +112,18 @@ export default {
       }
     }
   },
-errorCaptured(error, vm, info) {
-  console.log('errorCaptured', error, info)
-  return false; // Prevents the error from propagating further
-},
-warningCaptured(msg, vm, trace) {
-  console.log('warningCaptured', msg, trace)
-  return false; // Prevents the warning from propagating further
-},
 beforeMount() {
-    nextTick(() => {
       try {
       console.log("First fetch: ", firstfetch)
       if (firstfetch) {
         firstfetch = false
         this.fetchTunnels()
       } else {
-        new Error("First fetch failed")
-      }
+        return true;
+      } 
     } catch (error) {
       console.error("Error fetching tunnels:", error)
     }
-    })
 
   },
   computed: {
@@ -119,7 +138,14 @@ beforeMount() {
 </script>
 
 <template>
-  <h1>Tunnels</h1>
+  <h1>Tunnels Editor</h1>
+  <b-modal v-model="deleteModalOpen" title="Delete Tunnel">
+    <BOverlay :show="showOverlaydeletetunnel" rounded="sm"></BOverlay>
+    <p>Are you sure you want to delete this tunnel?</p>
+    <template v-slot:ok>
+      <b-button @click="deleteTunnel">Delete</b-button>
+    </template>
+  </b-modal>
   <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
    <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
     <BOverlay :show="showOverlayaddtunnel" rounded="sm">
@@ -142,10 +168,14 @@ beforeMount() {
     </BOverlay>
 
     <template v-slot:ok>
-      <b-button @click="addTunnel">Add tunnel</b-button>
+      <b-button @click="addTunnel" :disabled="showOverlayaddtunnel">Add tunnel</b-button>
     </template>
   </b-modal>
   <BOverlay :show="showOverlaytable" rounded="sm">
-  <b-table :items="tunnelsTable" :fields="fields"></b-table>
+  <b-table :items="tunnelsTable" :fields="fields">
+    <template #cell(actions)="row">
+      <b-button @click="deleteTunnelModal(row.item.name)">Delete</b-button>
+      </template>
+  </b-table>
   </BOverlay>
 </template>

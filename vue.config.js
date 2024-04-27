@@ -29,6 +29,10 @@ const env = {};
 });
 
 module.exports = {
+  devServer: {
+    hot: false,
+    liveReload: false
+  },
   chainWebpack: config => {
     config
       .plugin('define')
