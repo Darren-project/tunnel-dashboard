@@ -1,3 +1,4 @@
+//ts-ignore
 <script>
 import axios from 'axios'
 let firstfetch = true
@@ -57,6 +58,7 @@ export default {
 
       } catch (error) {
         console.error("Error fetching tunnels:", error)
+        this.$toast.error('Error fetching tunnels');
         this.showOverlaytable = false
       }
     },
@@ -77,12 +79,15 @@ export default {
           }
         })
         console.log("Tunnel deleted successfully")
+        this.$toast.success('Tunnel deleted successfully');
         this.deleteModalOpen = false
         this.showOverlaydeletetunnel = false
         this.fetchTunnels()
       } catch (error) {
         console.error("Error deleting tunnel:", error)
+        this.$toast.error('Error deleting tunnel');
         this.showOverlaydeletetunnel = false
+
       }
     },
     async addTunnel() {
@@ -100,6 +105,7 @@ export default {
           }
         })
         console.log("Tunnel added successfully")
+        this.$toast.success('Tunnel added successfully');
         this.newTunnel.name = ''
         this.newTunnel.host = ''
         this.newTunnel.target = ''
@@ -109,8 +115,15 @@ export default {
       } catch (error) {
         console.error("Error adding tunnel:", error)
         this.showOverlayaddtunnel = false
+        const { status } = error.response.data;
+        if(status == "state.tunnel.create.invalid.duplicate") {
+          this.$toast.error('Error adding tunnel: Duplicate');
+        }
+        if(status == "state.tunnel.create.invalid.data") {
+          this.$toast.error('Error adding tunnel: Invalid data');
+        }
+        }
       }
-    }
   },
 beforeMount() {
       try {
@@ -139,14 +152,16 @@ beforeMount() {
 
 <template>
   <h1>Tunnels Editor</h1>
+  <BToastOrchestrator />
   <b-modal v-model="deleteModalOpen" title="Delete Tunnel">
-    <BOverlay :show="showOverlaydeletetunnel" rounded="sm"></BOverlay>
-    <p>Are you sure you want to delete this tunnel?</p>
+    <BOverlay :show="showOverlaydeletetunnel" rounded="sm">
+    <p>Are you sure you want to delete <b> {{ this.deleteName }} </b></p>
+  </BOverlay>
     <template v-slot:ok>
-      <b-button @click="deleteTunnel">Delete</b-button>
+      <b-button :disabled="showOverlaydeletetunnel" @click="deleteTunnel" variant="danger">Delete</b-button>
     </template>
   </b-modal>
-  <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
+  <b-button :disabled="showOverlaytable" @click="addtunnelopenModal" variant="primary">Add Tunnel</b-button>
    <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
     <BOverlay :show="showOverlayaddtunnel" rounded="sm">
       <form>
@@ -168,13 +183,13 @@ beforeMount() {
     </BOverlay>
 
     <template v-slot:ok>
-      <b-button @click="addTunnel" :disabled="showOverlayaddtunnel">Add tunnel</b-button>
+      <b-button @click="addTunnel" :disabled="showOverlayaddtunnel" variant="primary">Add tunnel</b-button>
     </template>
   </b-modal>
   <BOverlay :show="showOverlaytable" rounded="sm">
   <b-table :items="tunnelsTable" :fields="fields">
     <template #cell(actions)="row">
-      <b-button @click="deleteTunnelModal(row.item.name)">Delete</b-button>
+      <b-button @click="deleteTunnelModal(row.item.name)" variant="danger">Delete</b-button>
       </template>
   </b-table>
   </BOverlay>

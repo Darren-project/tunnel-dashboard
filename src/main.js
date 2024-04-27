@@ -28,12 +28,18 @@ import {createBootstrap} from 'bootstrap-vue-next'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
+import ToastPlugin from 'vue-toast-notification';
+// Import one of the available themes
+import 'vue-toast-notification/dist/theme-default.css';
+//import 'vue-toast-notification/dist/theme-bootstrap.css';
+
 
 
 
 const app = createApp(App)
   .use(router)
   .use(createBootstrap({components: true, directives: true}))
+  .use(ToastPlugin)
   .use(OktaVue, {
     oktaAuth,
     onAuthRequired: () => {
