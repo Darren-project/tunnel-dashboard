@@ -7,7 +7,7 @@ import ProfileComponent from '../components/Profile.vue'
 import DashboardComponent from '../components/Dashboard.vue'
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',

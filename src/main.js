@@ -44,10 +44,17 @@ const app = createApp(App)
     },
   })
   
-app.errorHandler = (err, vm, info) => {
+app.config.errorHandler = (err, vm, info) => {
     console.error("Error:", err);
     console.error("Vue component:", vm);
     console.error("Additional info:", info);
     return false;
   }
+
+app.config.warnHandler = (msg, vm, trace) => {
+    console.warn("Warning:", msg);
+    console.warn("Vue component:", vm);
+    console.warn("Trace:", trace);
+  }
+
 app.mount('#app')

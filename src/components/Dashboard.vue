@@ -1,39 +1,7 @@
-<template>
-  <h1>Tunnels</h1>
-  <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
-  <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
-    <BOverlay :show="showOverlayaddtunnel" rounded="sm">
-      <form>
-        <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
-          <b-form-input id="name-input" v-model="newTunnel.name" required></b-form-input>
-          <b-form-invalid-feedback v-if="!newTunnel.name">Name is required.</b-form-invalid-feedback>
-        </b-form-group>
-
-        <b-form-group label="Host" label-for="host-input" :state="hostValidationState">
-          <b-form-input id="host-input" v-model="newTunnel.host" required></b-form-input>
-          <b-form-invalid-feedback v-if="!newTunnel.host">Host is required.</b-form-invalid-feedback>
-        </b-form-group>
-
-        <b-form-group label="Target" label-for="target-input" :state="targetValidationState">
-          <b-form-input id="target-input" v-model="newTunnel.target" required></b-form-input>
-          <b-form-invalid-feedback v-if="!newTunnel.target">Target is required.</b-form-invalid-feedback>
-        </b-form-group>
-      </form>
-    </BOverlay>
-
-    <template v-slot:ok>
-      <b-button @click="addTunnel">Add tunnel</b-button>
-    </template>
-  </b-modal>
-  <BOverlay :show="showOverlaytable" rounded="sm">
-  <b-table :items="tunnelsTable" :fields="fields"></b-table>
-  </BOverlay>
-</template>
-
 <script>
 import axios from 'axios'
 let firstfetch = true
-
+import { nextTick } from 'vue'
 
 export default {
   name: 'Dashboard',
@@ -78,6 +46,7 @@ export default {
           }
         })
         this.tunnels = response.data
+        this.showOverlaytable = false
 
       } catch (error) {
         console.error("Error fetching tunnels:", error)
@@ -114,22 +83,29 @@ export default {
       }
     }
   },
-errorHandler(error, vm, info) {
+errorCaptured(error, vm, info) {
   console.log('errorCaptured', error, info)
   return false; // Prevents the error from propagating further
 },
-mounted() {
-    try {
-      
+warningCaptured(msg, vm, trace) {
+  console.log('warningCaptured', msg, trace)
+  return false; // Prevents the warning from propagating further
+},
+beforeMount() {
+    nextTick(() => {
+      try {
+      console.log("First fetch: ", firstfetch)
       if (firstfetch) {
         firstfetch = false
-      this.fetchTunnels()
+        this.fetchTunnels()
       } else {
-        return;
+        new Error("First fetch failed")
       }
     } catch (error) {
       console.error("Error fetching tunnels:", error)
     }
+    })
+
   },
   computed: {
     tunnelsTable: {
@@ -141,3 +117,35 @@ mounted() {
   }
 }
 </script>
+
+<template>
+  <h1>Tunnels</h1>
+  <b-button @click="addtunnelopenModal">Add Tunnel</b-button>
+   <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
+    <BOverlay :show="showOverlayaddtunnel" rounded="sm">
+      <form>
+        <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
+          <b-form-input id="name-input" v-model="newTunnel.name" required></b-form-input>
+          <b-form-invalid-feedback v-if="!newTunnel.name">Name is required.</b-form-invalid-feedback>
+        </b-form-group>
+
+        <b-form-group label="Host" label-for="host-input" :state="hostValidationState">
+          <b-form-input id="host-input" v-model="newTunnel.host" required></b-form-input>
+          <b-form-invalid-feedback v-if="!newTunnel.host">Host is required.</b-form-invalid-feedback>
+        </b-form-group>
+
+        <b-form-group label="Target" label-for="target-input" :state="targetValidationState">
+          <b-form-input id="target-input" v-model="newTunnel.target" required></b-form-input>
+          <b-form-invalid-feedback v-if="!newTunnel.target">Target is required.</b-form-invalid-feedback>
+        </b-form-group>
+      </form>
+    </BOverlay>
+
+    <template v-slot:ok>
+      <b-button @click="addTunnel">Add tunnel</b-button>
+    </template>
+  </b-modal>
+  <BOverlay :show="showOverlaytable" rounded="sm">
+  <b-table :items="tunnelsTable" :fields="fields"></b-table>
+  </BOverlay>
+</template>
