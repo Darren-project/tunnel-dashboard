@@ -94,6 +94,11 @@ export default {
       this.showOverlayaddtunnel = true
       try {
         const accessToken = this.$auth.getAccessToken()
+        if(this.newTunnel.name == '' || this.newTunnel.host || this.newTunnel.target) {
+          this.$toast.error('Error adding tunnel: Invalid data');
+          this.showOverlayaddtunnel = false
+          return;
+        }
         await axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/create/" + this.newTunnel.name, this.newTunnel, {
           headers: {
             Authorization: accessToken
