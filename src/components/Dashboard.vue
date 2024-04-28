@@ -4,6 +4,7 @@ import axios from 'axios'
 let firstfetch = true
 
 export default {
+  inject: ['API_URL'],
   name: 'Dashboard',
   data() {
     return {
@@ -51,7 +52,7 @@ export default {
       this.showOverlaytable = true
       try {
         const accessToken = this.$auth.getAccessToken()
-        const response = await axios.get("https://socksproxyapi.darrenmc.xyz/api/tunnels/list", {
+        const response = await axios.get("https://" + this.API_URL + "/api/tunnels/list", {
           headers: {
             Authorization: accessToken
           }
@@ -74,7 +75,7 @@ export default {
       this.deleteModalOpen = true
     },
     editTunnelModal(item) {
-      this.edititems = item
+      this.edititems = Object.assign({}, item)
       this.editname = item.name
       this.edittunnelmodalOpen = true
     },
@@ -87,7 +88,7 @@ export default {
           this.showOverlayedittunnel = false
           return;
         }
-        await axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/edit/" + this.editname, this.edititems, {
+        await axios.post("https://" + this.API_URL + "/api/tunnels/edit/" + this.editname, this.edititems, {
           headers: {
             Authorization: accessToken
           },
@@ -121,7 +122,7 @@ export default {
       try {
         this.showOverlaydeletetunnel = true
         const accessToken = this.$auth.getAccessToken()
-        await axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/delete/" + this.deleteName, null, {
+        await axios.post("https://" + this.API_URL + "/api/tunnels/delete/" + this.deleteName, null, {
           headers: {
             Authorization: accessToken
           }
@@ -147,7 +148,7 @@ export default {
           this.showOverlayaddtunnel = false
           return;
         }
-        await axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/create/" + this.newTunnel.name, this.newTunnel, {
+        await axios.post("https://" + this.API_URL + "/api/tunnels/create/" + this.newTunnel.name, this.newTunnel, {
           headers: {
             Authorization: accessToken
           },
@@ -227,7 +228,7 @@ beforeMount() {
     </BOverlay>
 
     <template v-slot:ok>
-      <b-button @click="editTunnel" :disabled="showOverlayedittunnel" variant="primary">Add tunnel</b-button>
+      <b-button @click="editTunnel" :disabled="showOverlayedittunnel" variant="primary">Save tunnel</b-button>
     </template>
   </b-modal>
   <b-modal v-model="deleteModalOpen" :title="'Deleting ' + this.deleteName ">

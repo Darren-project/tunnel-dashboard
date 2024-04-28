@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 
 // Read environment variables from "testenv". Override environment vars if they are already set.
-const TESTENV = path.resolve(__dirname, 'testenv');
+const TESTENV = path.resolve(__dirname, '.env');
 if (fs.existsSync(TESTENV)) {
   const envConfig = dotenv.parse(fs.readFileSync(TESTENV));
   Object.keys(envConfig).forEach((k) => {
@@ -21,6 +21,7 @@ const env = {};
   'ISSUER',
   'CLIENT_ID',
   'USE_INTERACTION_CODE',
+  'API_URL',
 ].forEach(function (key) {
   if (!process.env[key]) {
     throw new Error(`Environment variable ${key} must be set. See README.md`);

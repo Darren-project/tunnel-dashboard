@@ -22,5 +22,8 @@ export default {
   },
   app: {
     basename: BASENAME
+  },
+  api: {
+    url: process.env.API_URL
   }
 }

@@ -63,4 +63,6 @@ app.config.warnHandler = (msg, vm, trace) => {
     console.warn("Trace:", trace);
   }
 
+app.provide('API_URL', sampleConfig.api.url)
+
 app.mount('#app')
