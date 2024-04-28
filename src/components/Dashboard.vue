@@ -1,7 +1,6 @@
 //ts-ignore
 <script>
 import axios from 'axios'
-let firstfetch = true
 
 export default {
   inject: ['API_URL'],
@@ -44,10 +43,35 @@ export default {
       edititems: '',
       edittunnelmodalOpen: false,
       showOverlayedittunnel: false,
-      editname: ''
+      editname: '',
+      serverStatus: '',
+      severRunning: false,
+      statusFetching: false,
+      showOverlayserverStatus: false
     }
   },
   methods: {
+    async fetchServerStatus() {
+      try {
+        this.statusFetching = true
+        this.showOverlayserverStatus = true
+        const response = await axios.get("https://" + this.API_URL + "/")
+        if (response.data.status == "state.tunnel.running") {
+          this.serverStatus = 'Server is running'
+          this.severRunning = true
+        } else {
+          this.serverStatus = 'Server is not running'
+          this.severRunning = false
+        }
+        this.statusFetching = false
+        this.showOverlayserverStatus = false
+      } catch (error) {
+        console.error("Error fetching server status:", error)
+        this.$toast.error('Error fetching server status');
+        this.statusFetching = false
+        this.showOverlayserverStatus = false
+      }
+    },
     async fetchTunnels() {      
       this.showOverlaytable = true
       try {
@@ -181,13 +205,8 @@ export default {
   },
 beforeMount() {
       try {
-      console.log("First fetch: ", firstfetch)
-      if (firstfetch) {
-        firstfetch = false
+        this.fetchServerStatus()
         this.fetchTunnels()
-      } else {
-        return true;
-      } 
     } catch (error) {
       console.error("Error fetching tunnels:", error)
     }
@@ -239,7 +258,12 @@ beforeMount() {
       <b-button :disabled="showOverlaydeletetunnel" @click="deleteTunnel" variant="danger">Delete</b-button>
     </template>
   </b-modal>
+
+
   <b-button :disabled="showOverlaytable" @click="addtunnelopenModal" variant="primary">Add Tunnel</b-button>
+  &nbsp;
+  <b-button :disabled="showOverlaytable" @click="fetchTunnels" variant="primary">Refresh</b-button>
+
    <b-modal v-model="addtunnelmodalOpen" title="Add Tunnel">
     <BOverlay :show="showOverlayaddtunnel" rounded="sm">
       <form>
@@ -273,4 +297,11 @@ beforeMount() {
       </template>
   </b-table>
   </BOverlay>
+
+<h1>Server Status</h1>
+<br>
+<BOverlay :show="showOverlayserverStatus" rounded="sm">
+{{ serverStatus }} &nbsp; <b-button :disabled="statusFetching" @click="fetchServerStatus" variant="primary">Refresh</b-button>
+</BOverlay>
+
 </template>
