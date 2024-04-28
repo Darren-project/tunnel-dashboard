@@ -87,7 +87,7 @@ export default {
         console.error("Error deleting tunnel:", error)
         this.$toast.error('Error deleting tunnel');
         this.showOverlaydeletetunnel = false
-
+        this.deleteModalOpen = false
       }
     },
     async addTunnel() {
