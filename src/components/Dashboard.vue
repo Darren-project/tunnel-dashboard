@@ -40,6 +40,10 @@ export default {
       deleteModalOpen: false,
       deleteName: '',
       showOverlaydeletetunnel: false,
+      edititems: '',
+      edittunnelmodalOpen: false,
+      showOverlayedittunnel: false,
+      editname: ''
     }
   },
   methods: {
@@ -69,6 +73,50 @@ export default {
       this.deleteName = name
       this.deleteModalOpen = true
     },
+    editTunnelModal(item) {
+      this.edititems = item
+      this.editname = item.name
+      this.edittunnelmodalOpen = true
+    },
+    async editTunnel() {
+        this.showOverlayedittunnel = true
+      try {
+        const accessToken = this.$auth.getAccessToken()
+        if(this.edititems.name == '' || this.edititems.host == '' || this.edititems.target == '') {
+          this.$toast.error('Error editing tunnel: Invalid data');
+          this.showOverlayedittunnel = false
+          return;
+        }
+        await axios.post("https://socksproxyapi.darrenmc.xyz/api/tunnels/edit/" + this.editname, this.edititems, {
+          headers: {
+            Authorization: accessToken
+          },
+          body: {
+            name: this.edititems.name,
+            host: this.edititems.host,
+            target: this.edititems.target
+          }
+        })
+        console.log("Tunnel edited successfully")
+        this.$toast.success('Tunnel edited successfully');
+        this.edititems.name = ''
+        this.edititems.host = ''
+        this.edititems.target = ''
+        this.fetchTunnels()
+        this.showOverlayedittunnel = false
+        this.edittunnelmodalOpen = false
+      } catch (error) {
+        console.error("Error editing tunnel:", error)
+        this.showOverlayedittunnel = false
+        const { status } = error.response.data;
+        if(status == "state.tunnel.edit.invalid.duplicate") {
+          this.$toast.error('Error editing tunnel: Duplicate');
+        }
+        if(status == "state.tunnel.edit.invalid.data") {
+          this.$toast.error('Error editing tunnel: Invalid data');
+        }
+        }
+    },
     async deleteTunnel() {
       try {
         this.showOverlaydeletetunnel = true
@@ -94,7 +142,7 @@ export default {
       this.showOverlayaddtunnel = true
       try {
         const accessToken = this.$auth.getAccessToken()
-        if(this.newTunnel.name == '' || this.newTunnel.host || this.newTunnel.target) {
+        if(this.newTunnel.name == '' || this.newTunnel.host == '' || this.newTunnel.target == '') {
           this.$toast.error('Error adding tunnel: Invalid data');
           this.showOverlayaddtunnel = false
           return;
@@ -158,7 +206,31 @@ beforeMount() {
 <template>
   <h1>Tunnels Editor</h1>
   <BToastOrchestrator />
-  <b-modal v-model="deleteModalOpen" title="Delete Tunnel">
+  <b-modal v-model="edittunnelmodalOpen" :title="'Editing ' + this.editname">
+    <BOverlay :show="showOverlayedittunnel" rounded="sm">
+      <form>
+        <b-form-group label="Name" label-for="name-input" :state="nameValidationState">
+          <b-form-input id="name-input" v-model="edititems.name" required></b-form-input>
+          <b-form-invalid-feedback v-if="!edititems.name">Name is required.</b-form-invalid-feedback>
+        </b-form-group>
+
+        <b-form-group label="Host" label-for="host-input" :state="hostValidationState">
+          <b-form-input id="host-input" v-model="edititems.host" required></b-form-input>
+          <b-form-invalid-feedback v-if="!newTunnel.host">Host is required.</b-form-invalid-feedback>
+        </b-form-group>
+
+        <b-form-group label="Target" label-for="target-input" :state="targetValidationState">
+          <b-form-input id="target-input" v-model="edititems.target" required></b-form-input>
+          <b-form-invalid-feedback v-if="!edititems.target">Target is required.</b-form-invalid-feedback>
+        </b-form-group>
+      </form>
+    </BOverlay>
+
+    <template v-slot:ok>
+      <b-button @click="editTunnel" :disabled="showOverlayedittunnel" variant="primary">Add tunnel</b-button>
+    </template>
+  </b-modal>
+  <b-modal v-model="deleteModalOpen" :title="'Deleting ' + this.deleteName ">
     <BOverlay :show="showOverlaydeletetunnel" rounded="sm">
     <p>Are you sure you want to delete <b> {{ this.deleteName }} </b></p>
   </BOverlay>
@@ -195,6 +267,8 @@ beforeMount() {
   <b-table :items="tunnelsTable" :fields="fields">
     <template #cell(actions)="row">
       <b-button @click="deleteTunnelModal(row.item.name)" variant="danger">Delete</b-button>
+      &nbsp;
+      <b-button @click="editTunnelModal(row.item)" variant="primary">Edit</b-button>
       </template>
   </b-table>
   </BOverlay>

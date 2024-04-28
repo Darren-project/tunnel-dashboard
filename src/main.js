@@ -34,7 +34,7 @@ import 'vue-toast-notification/dist/theme-default.css';
 //import 'vue-toast-notification/dist/theme-bootstrap.css';
 
 
-
+document.title = "Tunnel Manager"
 
 const app = createApp(App)
   .use(router)
