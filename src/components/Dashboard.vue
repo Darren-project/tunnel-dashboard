@@ -44,9 +44,35 @@ export default {
       edittunnelmodalOpen: false,
       showOverlayedittunnel: false,
       editname: '',
+      serverStatus: '🔃 Loading Status ...',
+      serverRunning: false,
+      statusFetching: false,
+      showOverlayserverStatus: false
     }
   },
   methods: {
+    async fetchServerStatus() {
+      this.serverStatus = '🔃 Loading Status ...'
+      try {
+        this.statusFetching = true
+        this.showOverlayserverStatus = true
+        const response = await axios.get("https://" + this.API_URL + "/")
+        if (response.data.status == "state.tunnel.running") {
+          this.serverStatus = '✅ Server is running'
+          this.serverRunning = true
+        } else {
+          this.serverStatus = '❌ Server is not running'
+          this.serverRunning = false
+        }
+        this.statusFetching = false
+        this.showOverlayserverStatus = false
+      } catch (error) {
+        console.error("Error fetching server status:", error)
+        this.$toast.error('Error fetching server status');
+        this.statusFetching = false
+        this.showOverlayserverStatus = false
+      }
+    },
     async fetchTunnels() {      
       this.showOverlaytable = true
       try {
@@ -176,10 +202,72 @@ export default {
           this.$toast.error('Error adding tunnel: Invalid data');
         }
         }
-      }
+      },
+      async stopServer() {
+        try {
+          this.serverStatus = '🔃 Stopping Server ...'
+          this.showOverlayserverStatus = true
+          const accessToken = this.$auth.getAccessToken()
+          await axios.post("https://" + this.API_URL + "/api/tunnels/stop", null, {
+            headers: {
+              Authorization: accessToken
+            }
+          })
+          console.log("Server stopped successfully")
+          this.$toast.success('Server stopped successfully');
+          this.fetchServerStatus() 
+        } catch (error) {
+          console.error("Error stopping server:", error)
+          this.$toast.error('Error stopping server');
+          this.showOverlayserverStatus = false
+          this.fetchServerStatus()
+  
+        }
+      },
+        async restartServer() {
+        try {
+          this.serverStatus = '🔃 Restarting Server ...'
+          this.showOverlayserverStatus = true
+          const accessToken = this.$auth.getAccessToken()
+          await axios.post("https://" + this.API_URL + "/api/tunnels/restart", null, {
+            headers: {
+              Authorization: accessToken
+            }
+          })
+          console.log("Server restarted successfully")
+          this.$toast.success('Server restarted successfully');
+          this.fetchServerStatus() 
+        } catch (error) {
+          console.error("Error restarting server:", error)
+          this.$toast.error('Error restarting server');
+          this.showOverlayserverStatus = false
+  
+        }
+      },
+      async startServer() {
+        try {
+          this.serverStatus = '🔃 Starting Server ...'
+          this.showOverlayserverStatus = true
+          const accessToken = this.$auth.getAccessToken()
+          await axios.post("https://" + this.API_URL + "/api/tunnels/start", null, {
+            headers: {
+              Authorization: accessToken
+            }
+          })
+          console.log("Server started successfully")
+          this.$toast.success('Server started successfully');
+          this.fetchServerStatus() 
+        } catch (error) {
+          console.error("Error starting server:", error)
+          this.$toast.error('Error starting server');
+          this.showOverlayserverStatus = false
+  
+        }
+      },
   },
 beforeMount() {
       try {
+        this.fetchServerStatus()
         this.fetchTunnels()
     } catch (error) {
       console.error("Error fetching tunnels:", error)
@@ -272,5 +360,21 @@ beforeMount() {
   </b-table>
   </BOverlay>
 
-
+<h1>Server Status</h1>
+<br>
+<BOverlay :show="showOverlayserverStatus" rounded="sm">
+{{ serverStatus }} &nbsp; <b-button :disabled="statusFetching" @click="fetchServerStatus" variant="primary">Refresh</b-button>
+<br>
+<br>
+<h5>Server Actions</h5>
+<template v-if="serverRunning">
+  <b-button @click="stopServer" variant="danger">Stop</b-button>
+      &nbsp;
+      <b-button @click="restartServer" variant="primary">Restart</b-button>
+</template>
+<template v-else>
+  <b-button @click="startServer" variant="primary">Start</b-button>
+</template>
+</BOverlay>
+<br>
 </template>
